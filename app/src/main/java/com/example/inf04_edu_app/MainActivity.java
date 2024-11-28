@@ -38,15 +38,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void onItemClick(Item item) {
         Intent intent = new Intent(this, DetailActivity.class);
-        Bundle bundle = new Bundle();
 
-        // Przekazywanie listy tekstów
-        ArrayList<String> texts = new ArrayList<>();
-        texts.add("Pierwszy dodatkowy tekst");
-        texts.add("Drugi dodatkowy tekst");
+        // Tworzenie szczegółowych danych
+        Item itemDetail = new Item(item.getTitle(), item.getDescription());
+        itemDetail.addTextSection("Pierwsza sekcja tekstu.");
+        itemDetail.addTextSection("Druga sekcja z bardziej szczegółowym opisem.");
 
-        bundle.putStringArrayList("TEXTS", texts);
-        intent.putExtras(bundle);
+        //itemDetail.addImageResId(R.drawable.image1);
+        //itemDetail.addImageResId(R.drawable.image2);
+
+        itemDetail.addBulletPoint("Pierwszy punkt");
+        itemDetail.addBulletPoint("Drugi punkt z listy");
+
+        intent.putExtra("ITEM_DETAIL", itemDetail);
         startActivity(intent);
     }
 
