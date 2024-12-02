@@ -2,19 +2,19 @@ package com.example.inf04_edu_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.inf04_edu_app.DetailActivity;
-import com.example.inf04_edu_app.Item;
-import com.example.inf04_edu_app.ItemAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int ADD_ITEM_REQUEST_CODE = 1;
     private RecyclerView recyclerView;
     private ItemAdapter adapter;
     private List<Item> itemList;
@@ -24,34 +24,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        itemList = new ArrayList<>();
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        itemList = new ArrayList<>();
-
-        Item item1 = new Item("Temat 1", "Opis tematu 1");
-        item1.addContent(new ItemContent(ItemContent.TYPE_TEXT, "Wstęp do tematu 1"));
-        item1.addContent(new ItemContent(ItemContent.TYPE_LIST, List.of("Punkt 1", "Punkt 2")));
-        item1.addContent(new ItemContent(ItemContent.TYPE_CODE, "public void method1() {\n    System.out.println(\"Kod 1\");\n}", true));
-
-        Item item2 = new Item("Temat 2", "Opis tematu 2");
-        item2.addContent(new ItemContent(ItemContent.TYPE_TEXT, "Wstęp do tematu 2"));
-        item2.addContent(new ItemContent(ItemContent.TYPE_TEXT, "Rozwinięcie tematu 2"));
-        item2.addContent(new ItemContent(ItemContent.TYPE_CODE, "public void method2() {\n    System.out.println(\"Kod 2\");\n}", true));
-        item2.addContent(new ItemContent(ItemContent.TYPE_LIST, List.of("Punkt 1", "Punkt 2", "Punkt 3")));
-        item2.addContent(new ItemContent(ItemContent.TYPE_CODE, "public void method2() {\n    System.out.println(\"Kod 2.4\");\n}", true));
-
-        itemList.add(item1);
-        itemList.add(item2);
-
-        adapter = new ItemAdapter(itemList, this::onItemClick);
+        adapter = new ItemAdapter(this, itemList);
         recyclerView.setAdapter(adapter);
+
+        Button addButton = findViewById(R.id.button_add_item);
+        addButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
+            startActivityForResult(intent, ADD_ITEM_REQUEST_CODE);
+        });
     }
 
-
-    private void onItemClick(Item item) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("ITEM_DETAIL", item);
-        startActivity(intent);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ADD_ITEM_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            Item newItem = (Item) data.getSerializableExtra("NEW_ITEM");
+            if (newItem != null) {
+                itemList.add(newItem);
+                adapter.notifyDataSetChanged();
+            }
+        }
     }
 }

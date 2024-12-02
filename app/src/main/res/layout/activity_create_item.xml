@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tytuł elementu" />
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Opis elementu" />
+
+    <Button
+        android:id="@+id/buttonAddTextSection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dodaj tekst" />
+
+    <Button
+        android:id="@+id/buttonAddListSection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dodaj listę" />
+
+    <Button
+        android:id="@+id/buttonAddCodeSection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dodaj kod" />
+
+    <Button
+        android:id="@+id/buttonSaveItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Zapisz element" />
+
+</LinearLayout>

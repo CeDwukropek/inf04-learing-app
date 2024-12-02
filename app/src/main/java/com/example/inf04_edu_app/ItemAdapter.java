@@ -1,5 +1,7 @@
 package com.example.inf04_edu_app;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,31 +15,29 @@ import java.util.List;
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
     private List<Item> itemList;
-    private OnItemClickListener listener;
+    private Context context;
 
-    public interface OnItemClickListener {
-        void onItemClick(Item item);
-    }
-
-    public ItemAdapter(List<Item> itemList, OnItemClickListener listener) {
+    public ItemAdapter(Context context, List<Item> itemList) {
+        this.context = context;
         this.itemList = itemList;
-        this.listener = listener;
     }
 
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_1, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
         return new ItemViewHolder(view);
     }
-
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         Item item = itemList.get(position);
         holder.textView.setText(item.getTitle());
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("ITEM_DETAIL", item);
+            context.startActivity(intent);
+        });
     }
 
     @Override
