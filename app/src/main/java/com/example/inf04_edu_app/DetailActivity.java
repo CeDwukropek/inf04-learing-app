@@ -32,64 +32,40 @@ public class DetailActivity extends AppCompatActivity {
 
         Item itemDetail = (Item) getIntent().getSerializableExtra("ITEM_DETAIL");
 
-        if (itemDetail != null) {
-            // Wyświetlanie tytułu
-            TextView titleTextView = new TextView(this);
-            titleTextView.setText(itemDetail.getTitle());
-            titleTextView.setTextSize(24);
-            layout.addView(titleTextView);
+        for (ItemContent content : itemDetail.getContents()) {
+            switch (content.getContentType()) {
+                case ItemContent.TYPE_TEXT:
+                    TextView textView = new TextView(this);
+                    textView.setText(content.getText());
+                    textView.setTextSize(18);
+                    layout.addView(textView);
+                    break;
 
-            // Wyświetlanie opisu
-            TextView descriptionTextView = new TextView(this);
-            descriptionTextView.setText(itemDetail.getDescription());
-            descriptionTextView.setTextSize(18);
-            layout.addView(descriptionTextView);
+                case ItemContent.TYPE_LIST:
+                    for (String item : content.getListItems()) {
+                        TextView listItemView = new TextView(this);
+                        listItemView.setText("• " + item);
+                        listItemView.setTextSize(16);
+                        layout.addView(listItemView);
+                    }
+                    break;
 
-            // Wyświetlanie sekcji tekstowych
-            for (String text : itemDetail.getTextSections()) {
-                TextView textView = new TextView(this);
-                textView.setText(text);
-                textView.setTextSize(16);
-                layout.addView(textView);
-            }
+                case ItemContent.TYPE_CODE:
+                    TextView codeTextView = new TextView(this);
+                    SpannableString spannableCode = new SpannableString(content.getCodeSnippet());
+                    applySyntaxHighlighting(spannableCode);
+                    codeTextView.setBackgroundResource(R.drawable.code_background);
+                    codeTextView.setText(spannableCode);
+                    layout.addView(codeTextView);
 
-            // Wyświetlanie obrazów
-            for (int imageResId : itemDetail.getImageResIds()) {
-                ImageView imageView = new ImageView(this);
-                imageView.setImageResource(imageResId);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, 300
-                ));
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                layout.addView(imageView);
-            }
-
-            // Wyświetlanie listy punktów
-            for (String point : itemDetail.getBulletPoints()) {
-                TextView bulletPointView = new TextView(this);
-                bulletPointView.setText("• " + point);
-                bulletPointView.setTextSize(16);
-                layout.addView(bulletPointView);
+                    Button copyButton = new Button(this);
+                    copyButton.setText("Kopiuj kod");
+                    copyButton.setOnClickListener(v -> copyToClipboard(content.getCodeSnippet()));
+                    layout.addView(copyButton);
+                    break;
             }
         }
 
-        // Przykładowy fragment kodu
-        String codeSnippet = "public void exampleMethod() {\n   System.out.println(\"Hello, world!\");\n}";
-
-        // Tworzenie sekcji kodu
-        TextView codeTextView = new TextView(this);
-        SpannableString spannableCode = new SpannableString(codeSnippet);
-        applySyntaxHighlighting(spannableCode);
-        codeTextView.setBackgroundResource(R.drawable.code_background);
-
-        codeTextView.setText(spannableCode);
-        layout.addView(codeTextView);
-
-        // Przycisk do kopiowania kodu
-        Button copyButton = new Button(this);
-        copyButton.setText("Kopiuj kod");
-        copyButton.setOnClickListener(v -> copyToClipboard(codeSnippet));
-        layout.addView(copyButton);
 
         Button backButton = findViewById(R.id.button_back);
         backButton.setOnClickListener(v -> {

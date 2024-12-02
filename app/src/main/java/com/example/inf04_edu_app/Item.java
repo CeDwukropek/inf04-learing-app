@@ -5,49 +5,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Item implements Serializable {
-    private String title;
-    private String description;
-    private List<String> textSections;
-    private List<Integer> imageResIds; // ID zasobów obrazów
-    private List<String> bulletPoints; // Opcjonalne listy punktowane
+    private final String title;
+    private final String description;
+    private List<ItemContent> contents;
 
     public Item(String title, String description) {
         this.title = title;
         this.description = description;
-        this.textSections = new ArrayList<>();
-        this.imageResIds = new ArrayList<>();
-        this.bulletPoints = new ArrayList<>();
+        this.contents = new ArrayList<>();
+    }
+
+    public List<ItemContent> getContents() {
+        return contents;
+    }
+
+    public void addContent(ItemContent content) {
+        contents.add(content);
     }
 
     public String getTitle() {
         return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public List<String> getTextSections() {
-        return textSections;
-    }
-
-    public List<Integer> getImageResIds() {
-        return imageResIds;
-    }
-
-    public List<String> getBulletPoints() {
-        return bulletPoints;
-    }
-
-    public void addTextSection(String text) {
-        textSections.add(text);
-    }
-
-    public void addImageResId(int imageResId) {
-        imageResIds.add(imageResId);
-    }
-
-    public void addBulletPoint(String point) {
-        bulletPoints.add(point);
     }
 }
