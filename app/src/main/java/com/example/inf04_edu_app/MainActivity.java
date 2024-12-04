@@ -29,10 +29,17 @@ public class MainActivity extends AppCompatActivity {
 
         itemList = new ArrayList<>();
 
-        Item item1 = new Item("Temat 1", "Opis tematu 1");
-        item1.addContent(new ItemContent(ItemContent.TYPE_TEXT, "Wstęp do tematu 1"));
-        item1.addContent(new ItemContent(ItemContent.TYPE_LIST, List.of("Punkt 1", "Punkt 2")));
-        item1.addContent(new ItemContent(ItemContent.TYPE_CODE, "public void method1() {\n    System.out.println(\"Kod 1\");\n}", true));
+        Item item1 = new Item("ListView", "Tworzenie i użycie list");
+        item1.addContent(new ItemContent(ItemContent.TYPE_LIST, List.of("Deklaracja", "Definicja", "Tworzenie listy z wartościami", "Dodanie adaptera")));
+        item1.addContent(new ItemContent(ItemContent.TYPE_CODE, "    @Override\n" +
+                "    protected void onCreate(Bundle savedInstanceState) {\n" +
+                "        /* base code here*/\n" +
+                "\n" +
+                "        animalsList = findViewById(R.id.animals);\n" +
+                "        String [] listToShow = new String []{\"Pies\",\"Kot\",\"Świnka Morska\"} ;\n" +
+                "        ArrayAdapter <String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, listToShow);\n" +
+                "        animalsList.setAdapter(adapter);\n" +
+                "    }", true));
 
         Item item2 = new Item("Temat 2", "Opis tematu 2");
         item2.addContent(new ItemContent(ItemContent.TYPE_TEXT, "Wstęp do tematu 2"));
