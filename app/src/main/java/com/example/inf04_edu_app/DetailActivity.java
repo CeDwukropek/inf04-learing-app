@@ -11,6 +11,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -51,12 +52,26 @@ public class DetailActivity extends AppCompatActivity {
                     break;
 
                 case ItemContent.TYPE_CODE:
+                    // Tworzenie TextView dla kodu
                     TextView codeTextView = new TextView(this);
                     SpannableString spannableCode = new SpannableString(content.getCodeSnippet());
                     applySyntaxHighlighting(spannableCode);
-                    codeTextView.setBackgroundResource(R.drawable.code_background);
+
+                    // Ustawienia TextView dla przewijania poziomego i niezawijania tekstu
                     codeTextView.setText(spannableCode);
-                    layout.addView(codeTextView);
+                    codeTextView.setTextSize(16);
+                    codeTextView.setPadding(16, 16, 16, 16);
+                    codeTextView.setHorizontallyScrolling(true);  // Wymuszenie przewijania poziomego
+                    codeTextView.setSingleLine(false);            // Pozwala na wiele linii bez zawijania
+                    codeTextView.setBackgroundResource(R.drawable.code_background); // Ustawienie tła
+
+                    // Tworzenie HorizontalScrollView i dodanie TextView do niego
+                    HorizontalScrollView scrollView = new HorizontalScrollView(this);
+                    scrollView.addView(codeTextView);
+
+                    // Dodanie HorizontalScrollView do układu
+                    layout.addView(scrollView);
+
 
                     Button copyButton = new Button(this);
                     copyButton.setText("Kopiuj kod");
@@ -77,30 +92,50 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void applySyntaxHighlighting(SpannableString code) {
-        // Kolorowanie słów kluczowych
-        String[] keywords = {"public", "void", "System", "out", "println"};
-        for (String keyword : keywords) {
-            Pattern pattern = Pattern.compile("\\b" + keyword + "\\b");
+        // Kolorowanie słów kluczowych Javy
+        String[] keywords = {
+                "public", "private", "protected", "class", "static", "void", "int",
+                "double", "float", "boolean", "if", "else", "for", "while", "switch",
+                "case", "break", "continue", "return", "try", "catch", "finally", "throw",
+                "throws", "new", "this", "super", "extends", "implements", "import",
+                "package", "default", "null", "true", "false"
+        };
+
+        String[] dataTypes = {};
+
+        highlightWords(code, keywords, Color.BLUE);
+
+        // Kolorowanie komentarzy jednoliniowych
+        highlightPattern(code, "//.*", Color.GREEN);
+
+        // Kolorowanie komentarzy wieloliniowych
+        highlightPattern(code, "/\\*.*?\\*/", Color.GREEN);
+
+        // Kolorowanie stringów (ciągów znaków)
+        highlightPattern(code, "\"(\\\\.|[^\"])*\"", Color.MAGENTA);
+
+        // Kolorowanie literałów liczbowych
+        highlightPattern(code, "\\b\\d+\\b", Color.RED);
+    }
+
+    private void highlightWords(SpannableString code, String[] words, int color) {
+        for (String word : words) {
+            Pattern pattern = Pattern.compile("\\b" + word + "\\b");
             Matcher matcher = pattern.matcher(code);
             while (matcher.find()) {
-                code.setSpan(new ForegroundColorSpan(Color.BLUE), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                code.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
+    }
 
-        // Kolorowanie komentarzy
-        Pattern commentPattern = Pattern.compile("//.*");
-        Matcher commentMatcher = commentPattern.matcher(code);
-        while (commentMatcher.find()) {
-            code.setSpan(new ForegroundColorSpan(Color.GREEN), commentMatcher.start(), commentMatcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        // Kolorowanie ciągów znaków (stringów)
-        Pattern stringPattern = Pattern.compile("\".*?\"");
-        Matcher stringMatcher = stringPattern.matcher(code);
-        while (stringMatcher.find()) {
-            code.setSpan(new ForegroundColorSpan(Color.MAGENTA), stringMatcher.start(), stringMatcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    private void highlightPattern(SpannableString code, String regex, int color) {
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL); // DOTALL obsługuje wieloliniowe dopasowania
+        Matcher matcher = pattern.matcher(code);
+        while (matcher.find()) {
+            code.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
+
 
     private void copyToClipboard(String text) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
