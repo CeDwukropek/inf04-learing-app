@@ -9,11 +9,16 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,57 +36,74 @@ public class DetailActivity extends AppCompatActivity {
 
         LinearLayout layout = findViewById(R.id.dynamicContentLayout);
 
-        Item itemDetail = (Item) getIntent().getSerializableExtra("ITEM_DETAIL");
-
-        for (ItemContent content : itemDetail.getContents()) {
-            switch (content.getContentType()) {
-                case ItemContent.TYPE_TEXT:
-                    TextView textView = new TextView(this);
-                    textView.setText(content.getText());
-                    textView.setTextSize(18);
-                    layout.addView(textView);
-                    break;
-
-                case ItemContent.TYPE_LIST:
-                    for (String item : content.getListItems()) {
-                        TextView listItemView = new TextView(this);
-                        listItemView.setText("• " + item);
-                        listItemView.setTextSize(16);
-                        layout.addView(listItemView);
-                    }
-                    break;
-
-                case ItemContent.TYPE_CODE:
-                    // Tworzenie TextView dla kodu
-                    TextView codeTextView = new TextView(this);
-                    SpannableString spannableCode = new SpannableString(content.getCodeSnippet());
-                    applySyntaxHighlighting(spannableCode);
-
-                    // Ustawienia TextView dla przewijania poziomego i niezawijania tekstu
-                    codeTextView.setText(spannableCode);
-                    codeTextView.setTextSize(16);
-                    codeTextView.setPadding(16, 16, 16, 16);
-                    codeTextView.setHorizontallyScrolling(true);  // Wymuszenie przewijania poziomego
-                    codeTextView.setSingleLine(false);            // Pozwala na wiele linii bez zawijania
-                    codeTextView.setBackgroundResource(R.drawable.code_background); // Ustawienie tła
-
-                    // Tworzenie HorizontalScrollView i dodanie TextView do niego
-                    HorizontalScrollView scrollView = new HorizontalScrollView(this);
-                    scrollView.addView(codeTextView);
-
-                    // Dodanie HorizontalScrollView do układu
-                    layout.addView(scrollView);
+        // Pobieranie przekazanego obiektu Item
+        Item itemDetail = (Item) getIntent().getSerializableExtra("ITEM");
 
 
-                    Button copyButton = new Button(this);
-                    copyButton.setText("Kopiuj kod");
-                    copyButton.setOnClickListener(v -> copyToClipboard(content.getCodeSnippet()));
-                    layout.addView(copyButton);
-                    break;
+        Log.d("SECTIONS", "Liczba sekcji: " + itemDetail.getSections().size());
+
+
+        if (itemDetail != null) {
+            // Wyświetlanie tytułu
+            TextView titleTextView = new TextView(this);
+            titleTextView.setText(itemDetail.getTitle());
+            titleTextView.setTextSize(24);
+            titleTextView.setTypeface(null, Typeface.BOLD);
+            layout.addView(titleTextView);
+
+            // Wyświetlanie opisu
+            TextView descriptionTextView = new TextView(this);
+            descriptionTextView.setText(itemDetail.getDescription());
+            descriptionTextView.setTextSize(18);
+            descriptionTextView.setPadding(0, 16, 0, 16);
+            layout.addView(descriptionTextView);
+
+            // Wyświetlanie sekcji
+            for (Section section : itemDetail.getSections()) {
+                switch (section.getType()) {
+                    case TEXT:
+                        TextView textView = new TextView(this);
+                        String content = section.getContent();
+                        if (content != null) {
+                            textView.setText(content);
+                        } else {
+                            textView.setText("Brak treści"); // Tekst zastępczy
+                        }
+                        layout.addView(textView);
+                        break;
+
+                    case CODE:
+                        TextView codeView = new TextView(this);
+                        String codeContent = section.getContent();
+                        if (codeContent != null) {
+                            SpannableString code = new SpannableString(codeContent);
+                            applySyntaxHighlighting(code);
+                            codeView.setText(code);
+                        } else {
+                            codeView.setText("Kod niedostępny");
+                        }
+                        codeView.setBackgroundColor(Color.parseColor("#0A0A0A"));
+                        layout.addView(codeView);
+                        break;
+
+                    case IMAGE:
+                        ImageView imageView = new ImageView(this);
+                        if (section.getImageResId() != null) {
+                            imageView.setImageResource(section.getImageResId());
+                        }
+                        layout.addView(imageView);
+                        break;
+
+                    case EXAMPLE:
+                        View exampleView = createExampleView(section.getExampleType());
+                        layout.addView(exampleView);
+                        break;
+                }
             }
+
         }
 
-
+        // Przycisk powrotu do MainActivity
         Button backButton = findViewById(R.id.button_back);
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(DetailActivity.this, MainActivity.class);
@@ -91,51 +113,96 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+    private View createExampleView(String exampleType) {
+        switch (exampleType) {
+            case "ListView":
+                ListView listView = new ListView(this);
+                String[] listData = {"Element 1", "Element 2", "Element 3"};
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
+                listView.setAdapter(adapter);
+                return listView;
+
+            case "Spinner":
+                Spinner spinner = new Spinner(this);
+                String[] spinnerData = {"Opcja 1", "Opcja 2", "Opcja 3"};
+                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, spinnerData);
+                spinner.setAdapter(spinnerAdapter);
+                return spinner;
+
+            default:
+                TextView errorView = new TextView(this);
+                errorView.setText("Nieznany przykład: " + exampleType);
+                return errorView;
+        }
+    }
+
+
+    private void addTextSection(LinearLayout layout, String text) {
+        TextView textView = new TextView(this);
+        textView.setText(text);
+        textView.setTextSize(16);
+        textView.setPadding(0, 8, 0, 8);
+        layout.addView(textView);
+    }
+
+    private void addCodeSection(LinearLayout layout, String codeSnippet) {
+        TextView codeTextView = new TextView(this);
+
+        // Ustawienia wyglądu dla sekcji kodu
+        SpannableString spannableCode = new SpannableString(codeSnippet);
+        applySyntaxHighlighting(spannableCode);
+
+        codeTextView.setText(spannableCode);
+        codeTextView.setTextSize(14);
+        codeTextView.setTypeface(Typeface.MONOSPACE);
+        codeTextView.setBackgroundColor(Color.parseColor("#0A0A0A"));
+        codeTextView.setTextColor(Color.WHITE);
+        codeTextView.setPadding(16, 16, 16, 16);
+        codeTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        // Dodanie obramowania dla sekcji kodu
+        codeTextView.setBackgroundResource(R.drawable.code_background);
+
+        layout.addView(codeTextView);
+
+        // Przycisk kopiowania kodu
+        Button copyButton = new Button(this);
+        copyButton.setText("Kopiuj kod");
+        copyButton.setOnClickListener(v -> copyToClipboard(codeSnippet));
+        layout.addView(copyButton);
+    }
+
+    private void addBulletListSection(LinearLayout layout, String[] bulletPoints) {
+        for (String point : bulletPoints) {
+            TextView bulletPointView = new TextView(this);
+            bulletPointView.setText("• " + point);
+            bulletPointView.setTextSize(16);
+            bulletPointView.setPadding(0, 4, 0, 4);
+            layout.addView(bulletPointView);
+        }
+    }
+
     private void applySyntaxHighlighting(SpannableString code) {
-        // Kolorowanie słów kluczowych Javy
-        String[] keywords = {
-                "public", "private", "protected", "class", "static", "void", "int",
-                "double", "float", "boolean", "if", "else", "for", "while", "switch",
-                "case", "break", "continue", "return", "try", "catch", "finally", "throw",
-                "throws", "new", "this", "super", "extends", "implements", "import",
-                "package", "default", "null", "true", "false"
-        };
+        // Kolorowanie słów kluczowych
+        String[] keywords = {"public", "void", "class", "int", "String", "new", "return"};
+        for (String keyword : keywords) {
+            highlightPattern(code, "\\b" + keyword + "\\b", Color.BLUE);
+        }
 
-        String[] dataTypes = {};
-
-        highlightWords(code, keywords, Color.BLUE);
-
-        // Kolorowanie komentarzy jednoliniowych
+        // Kolorowanie komentarzy
         highlightPattern(code, "//.*", Color.GREEN);
 
-        // Kolorowanie komentarzy wieloliniowych
-        highlightPattern(code, "/\\*.*?\\*/", Color.GREEN);
-
-        // Kolorowanie stringów (ciągów znaków)
-        highlightPattern(code, "\"(\\\\.|[^\"])*\"", Color.MAGENTA);
-
-        // Kolorowanie literałów liczbowych
-        highlightPattern(code, "\\b\\d+\\b", Color.RED);
+        // Kolorowanie ciągów znaków
+        highlightPattern(code, "\".*?\"", Color.MAGENTA);
     }
 
-    private void highlightWords(SpannableString code, String[] words, int color) {
-        for (String word : words) {
-            Pattern pattern = Pattern.compile("\\b" + word + "\\b");
-            Matcher matcher = pattern.matcher(code);
-            while (matcher.find()) {
-                code.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
-    }
-
-    private void highlightPattern(SpannableString code, String regex, int color) {
-        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL); // DOTALL obsługuje wieloliniowe dopasowania
-        Matcher matcher = pattern.matcher(code);
+    private void highlightPattern(SpannableString spannable, String pattern, int color) {
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(spannable);
         while (matcher.find()) {
-            code.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannable.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
-
 
     private void copyToClipboard(String text) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
