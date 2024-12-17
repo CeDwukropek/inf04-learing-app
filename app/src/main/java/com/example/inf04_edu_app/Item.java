@@ -5,20 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Item implements Serializable {
-    private String title;
-    private String description;
-    private List<String> textSections;
-    private List<Integer> imageResIds; // ID zasobów obrazów
-    private List<String> bulletPoints; // Opcjonalne listy punktowane
+    private String title; // Tytuł elementu
+    private String description; // Opis elementu
+    private List<Section> sections; // Lista sekcji (tekst, kod, obrazy itp.)
 
+    // Konstruktor
     public Item(String title, String description) {
         this.title = title;
         this.description = description;
-        this.textSections = new ArrayList<>();
-        this.imageResIds = new ArrayList<>();
-        this.bulletPoints = new ArrayList<>();
+        this.sections = new ArrayList<>();
     }
 
+    // Gettery
     public String getTitle() {
         return title;
     }
@@ -27,27 +25,22 @@ public class Item implements Serializable {
         return description;
     }
 
-    public List<String> getTextSections() {
-        return textSections;
+    public List<Section> getSections() {
+        return sections;
     }
 
-    public List<Integer> getImageResIds() {
-        return imageResIds;
+    // Dodanie sekcji do elementu
+    public void addSection(Section section) {
+        sections.add(section);
     }
 
-    public List<String> getBulletPoints() {
-        return bulletPoints;
-    }
-
-    public void addTextSection(String text) {
-        textSections.add(text);
-    }
-
-    public void addImageResId(int imageResId) {
-        imageResIds.add(imageResId);
-    }
-
-    public void addBulletPoint(String point) {
-        bulletPoints.add(point);
+    // Metoda do debugowania
+    @Override
+    public String toString() {
+        return "Item{" +
+                "title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", sections=" + sections +
+                '}';
     }
 }
