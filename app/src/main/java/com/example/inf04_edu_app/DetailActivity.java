@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -73,18 +74,40 @@ public class DetailActivity extends AppCompatActivity {
                         break;
 
                     case CODE:
+                        // Stwórz HorizontalScrollView
+                        HorizontalScrollView scrollView = new HorizontalScrollView(this);
+                        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        ));
+
+                        // Stwórz TextView dla kodu
                         TextView codeView = new TextView(this);
-                        String codeContent = section.getContent();
-                        if (codeContent != null) {
-                            SpannableString code = new SpannableString(codeContent);
-                            applySyntaxHighlighting(code);
-                            codeView.setText(code);
-                        } else {
-                            codeView.setText("Kod niedostępny");
-                        }
+                        SpannableString highlightedCode = highlightCode(section.getContent());
+                        codeView.setText(highlightedCode);
+                        codeView.setTextSize(14);
                         codeView.setBackgroundColor(Color.parseColor("#0A0A0A"));
-                        layout.addView(codeView);
+                        codeView.setTextColor(Color.WHITE);
+                        codeView.setPadding(16, 16, 16, 16);
+
+                        // Kluczowe ustawienia dla przewijania poziomego
+                        codeView.setHorizontallyScrolling(true); // Włącz przewijanie poziome
+                        codeView.setMovementMethod(new ScrollingMovementMethod()); // Włącz przewijanie treści
+
+                        // Dodaj TextView do HorizontalScrollView
+                        scrollView.addView(codeView);
+
+                        // Dodaj HorizontalScrollView do układu
+                        layout.addView(scrollView);
+
+                        // Dodaj przycisk kopiowania kodu
+                        Button copyButton = new Button(this);
+                        copyButton.setText("Kopiuj kod");
+                        copyButton.setOnClickListener(v -> copyToClipboard(section.getContent()));
+                        layout.addView(copyButton);
                         break;
+
+
 
                     case IMAGE:
                         ImageView imageView = new ImageView(this);
@@ -112,6 +135,56 @@ public class DetailActivity extends AppCompatActivity {
             finish();
         });
     }
+
+    private SpannableString highlightCode(String code) {
+        SpannableString spannableString = new SpannableString(code);
+
+        // Proste przykłady regexów do znalezienia kluczowych słów w Javie
+        Pattern keywordPattern = Pattern.compile("\\b(public|class|void|int|float|if|else|for|while|return|new)\\b");
+        Pattern stringPattern = Pattern.compile("\".*?\""); // Ciągi znaków w cudzysłowach
+        Pattern commentPattern = Pattern.compile("//.*|/\\*.*?\\*/", Pattern.DOTALL); // Komentarze
+
+        // Ustaw kolory
+        int keywordColor = Color.parseColor("#FF5722");
+        int stringColor = Color.parseColor("#4CAF50");
+        int commentColor = Color.parseColor("#757575");
+
+        // Podświetl kluczowe słowa
+        Matcher matcher = keywordPattern.matcher(code);
+        while (matcher.find()) {
+            spannableString.setSpan(
+                    new ForegroundColorSpan(keywordColor),
+                    matcher.start(),
+                    matcher.end(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+
+        // Podświetl ciągi znaków
+        matcher = stringPattern.matcher(code);
+        while (matcher.find()) {
+            spannableString.setSpan(
+                    new ForegroundColorSpan(stringColor),
+                    matcher.start(),
+                    matcher.end(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+
+        // Podświetl komentarze
+        matcher = commentPattern.matcher(code);
+        while (matcher.find()) {
+            spannableString.setSpan(
+                    new ForegroundColorSpan(commentColor),
+                    matcher.start(),
+                    matcher.end(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+
+        return spannableString;
+    }
+
 
     private View createExampleView(String exampleType) {
         switch (exampleType) {
