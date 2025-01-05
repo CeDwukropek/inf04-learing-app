@@ -34,6 +34,13 @@ public class Item implements Serializable {
         sections.add(section);
     }
 
+    // Nowa metoda dodająca sekcję listy
+    public void addListSection(List<String> items) {
+        Section listSection = new Section(Section.Type.LIST, null);
+        listSection.setListItems(items);
+        sections.add(listSection);
+    }
+
     // Metoda do debugowania
     @Override
     public String toString() {

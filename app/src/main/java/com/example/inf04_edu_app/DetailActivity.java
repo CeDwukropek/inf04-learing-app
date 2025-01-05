@@ -48,7 +48,7 @@ public class DetailActivity extends AppCompatActivity {
             // Wyświetlanie tytułu
             TextView titleTextView = new TextView(this);
             titleTextView.setText(itemDetail.getTitle());
-            titleTextView.setTextSize(24);
+            titleTextView.setTextSize(36);
             titleTextView.setTypeface(null, Typeface.BOLD);
             layout.addView(titleTextView);
 
@@ -74,31 +74,38 @@ public class DetailActivity extends AppCompatActivity {
                         break;
 
                     case CODE:
-                        // Stwórz HorizontalScrollView
-                        HorizontalScrollView scrollView = new HorizontalScrollView(this);
-                        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        // Stwórz poziomy scroll view
+                        HorizontalScrollView horizontalScrollView = new HorizontalScrollView(this);
+                        horizontalScrollView.setLayoutParams(new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT, // Szerokość na cały ekran
+                                LinearLayout.LayoutParams.WRAP_CONTENT // Wysokość dopasowana do zawartości
                         ));
 
                         // Stwórz TextView dla kodu
-                        TextView codeView = new TextView(this);
+                        TextView codeTextView = new TextView(this);
                         SpannableString highlightedCode = highlightCode(section.getContent());
-                        codeView.setText(highlightedCode);
-                        codeView.setTextSize(14);
-                        codeView.setBackgroundColor(Color.parseColor("#0A0A0A"));
-                        codeView.setTextColor(Color.WHITE);
-                        codeView.setPadding(16, 16, 16, 16);
+                        codeTextView.setText(highlightedCode);
+                        codeTextView.setTextSize(14);
+                        codeTextView.setBackgroundColor(Color.parseColor("#0A0A0A")); // Tło czarne
+                        codeTextView.setTextColor(Color.WHITE); // Tekst biały
+                        codeTextView.setPadding(16, 16, 16, 16); // Marginesy wewnętrzne
 
-                        // Kluczowe ustawienia dla przewijania poziomego
-                        codeView.setHorizontallyScrolling(true); // Włącz przewijanie poziome
-                        codeView.setMovementMethod(new ScrollingMovementMethod()); // Włącz przewijanie treści
+                        // Wymuszenie przewijania poziomego
+                        codeTextView.setHorizontallyScrolling(true); // Włącz przewijanie poziome
+                        codeTextView.setScrollBarStyle(TextView.SCROLLBARS_INSIDE_OVERLAY);
+                        codeTextView.setMovementMethod(new ScrollingMovementMethod()); // Aktywuj przesuwanie
+
+                        // Zawsze wymuszanie szerokości w układzie
+                        codeTextView.setLayoutParams(new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT, // TextView zajmuje szerokość ekranu
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        ));
 
                         // Dodaj TextView do HorizontalScrollView
-                        scrollView.addView(codeView);
+                        horizontalScrollView.addView(codeTextView);
 
-                        // Dodaj HorizontalScrollView do układu
-                        layout.addView(scrollView);
+                        // Dodaj HorizontalScrollView do layoutu głównego
+                        layout.addView(horizontalScrollView);
 
                         // Dodaj przycisk kopiowania kodu
                         Button copyButton = new Button(this);
@@ -107,7 +114,21 @@ public class DetailActivity extends AppCompatActivity {
                         layout.addView(copyButton);
                         break;
 
+                    case LIST:
+                        // Tworzenie sekcji listy
+                        LinearLayout listLayout = new LinearLayout(this);
+                        listLayout.setOrientation(LinearLayout.VERTICAL);
 
+                        for (String item : section.getListItems()) {
+                            TextView listItemView = new TextView(this);
+                            listItemView.setText("• " + highlightCode(item)); // Punkt listy
+                            listItemView.setTextSize(16);
+                            listItemView.setPadding(8, 8, 8, 8);
+                            listLayout.addView(listItemView);
+                        }
+
+                        layout.addView(listLayout);
+                        break;
 
                     case IMAGE:
                         ImageView imageView = new ImageView(this);
@@ -120,6 +141,29 @@ public class DetailActivity extends AppCompatActivity {
                     case EXAMPLE:
                         View exampleView = createExampleView(section.getExampleType());
                         layout.addView(exampleView);
+                        break;
+
+                    case H1: // Obsługa nagłówków H1 do H6
+                    case H2:
+                    case H3:
+                    case H4:
+                    case H5:
+                    case H6:
+                        TextView headerView = new TextView(this);
+                        headerView.setText(section.getContent());
+                        headerView.setTypeface(null, Typeface.BOLD);
+                        int textSize;
+                        switch (section.getType()) {
+                            case H1: textSize = 26; break;
+                            case H2: textSize = 24; break;
+                            case H3: textSize = 22; break;
+                            case H4: textSize = 20; break;
+                            case H5: textSize = 18; break;
+                            case H6: textSize = 16; break;
+                            default: textSize = 16; break;
+                        }
+                        headerView.setTextSize(textSize);
+                        layout.addView(headerView);
                         break;
                 }
             }
@@ -140,20 +184,37 @@ public class DetailActivity extends AppCompatActivity {
         SpannableString spannableString = new SpannableString(code);
 
         // Proste przykłady regexów do znalezienia kluczowych słów w Javie
-        Pattern keywordPattern = Pattern.compile("\\b(public|class|void|int|float|if|else|for|while|return|new)\\b");
+        Pattern keywordPattern = Pattern.compile("\\b(public|private|protected|class|void|int|float|if|else|for|while|return|new)\\b");
         Pattern stringPattern = Pattern.compile("\".*?\""); // Ciągi znaków w cudzysłowach
         Pattern commentPattern = Pattern.compile("//.*|/\\*.*?\\*/", Pattern.DOTALL); // Komentarze
+        Pattern fxmlPattern = Pattern.compile("@[A-Za-z]+", Pattern.DOTALL); // FXML
+        Pattern dataTypePattern = Pattern.compile("\\b[A-Z][a-z]*([A-Z][a-z]*)?\\b");
+        Pattern regexPattern = Pattern.compile("^(.*?)-.*$");
 
         // Ustaw kolory
         int keywordColor = Color.parseColor("#FF5722");
         int stringColor = Color.parseColor("#4CAF50");
         int commentColor = Color.parseColor("#757575");
+        int fxmlColor = Color.parseColor("#f5c242");
+        int dataTypeColor = Color.parseColor("#e00087");
+        int regexColor = Color.parseColor("#91366d");
 
         // Podświetl kluczowe słowa
         Matcher matcher = keywordPattern.matcher(code);
         while (matcher.find()) {
             spannableString.setSpan(
                     new ForegroundColorSpan(keywordColor),
+                    matcher.start(),
+                    matcher.end(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+
+        // Podświetl typy danych
+        matcher = dataTypePattern.matcher(code);
+        while (matcher.find()) {
+            spannableString.setSpan(
+                    new ForegroundColorSpan(dataTypeColor),
                     matcher.start(),
                     matcher.end(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -176,6 +237,28 @@ public class DetailActivity extends AppCompatActivity {
         while (matcher.find()) {
             spannableString.setSpan(
                     new ForegroundColorSpan(commentColor),
+                    matcher.start(),
+                    matcher.end(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+
+        // Podświetl @FXML
+        matcher = fxmlPattern.matcher(code);
+        while (matcher.find()) {
+            spannableString.setSpan(
+                    new ForegroundColorSpan(fxmlColor),
+                    matcher.start(),
+                    matcher.end(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+
+        // Podświetl regex
+        matcher = regexPattern.matcher(code);
+        while (matcher.find()) {
+            spannableString.setSpan(
+                    new ForegroundColorSpan(regexColor),
                     matcher.start(),
                     matcher.end(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
