@@ -13,6 +13,8 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -25,6 +27,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,28 +123,39 @@ public class DetailActivity extends AppCompatActivity {
                         LinearLayout listLayout = new LinearLayout(this);
                         listLayout.setOrientation(LinearLayout.VERTICAL);
 
+                        int id = 1;
                         for (String item : section.getListItems()) {
+                            LinearLayout listItem = new LinearLayout(this);
+                            TextView listItemDotView = new TextView(this);
                             TextView listItemView = new TextView(this);
-                            listItemView.setText("• " + highlightCode(item)); // Punkt listy
+                            listItem.setOrientation(LinearLayout.HORIZONTAL);
+                            listItemDotView.setTypeface(null, Typeface.BOLD);
+                            listItemView.setText(item); // Punkt listy
+                            listItemDotView.setText(id + ". "); // Punkt listy
                             listItemView.setTextSize(16);
                             listItemView.setPadding(8, 8, 8, 8);
-                            listLayout.addView(listItemView);
+                            listItem.addView(listItemDotView);
+                            listItem.addView(listItemView);
+                            listLayout.addView(listItem);
+                            id++;
                         }
 
                         layout.addView(listLayout);
                         break;
 
-                    case IMAGE:
-                        ImageView imageView = new ImageView(this);
-                        if (section.getImageResId() != null) {
-                            imageView.setImageResource(section.getImageResId());
-                        }
-                        layout.addView(imageView);
-                        break;
-
                     case EXAMPLE:
                         View exampleView = createExampleView(section.getContent());
+                        int listViewHeight = 0;
+                        if(section.getContent().equals("ListView")) {
+                            ListView list = (ListView) exampleView;
+                            listViewHeight = list.getAdapter().getCount() * 150;
+                        }
                         layout.addView(exampleView);
+
+                        ViewGroup.LayoutParams exampleViewLayoutParams = exampleView.getLayoutParams();
+
+                        exampleViewLayoutParams.height = listViewHeight;
+                        exampleView.setLayoutParams(exampleViewLayoutParams);
                         break;
 
                     case H1: // Obsługa nagłówków H1 do H6
@@ -152,17 +167,28 @@ public class DetailActivity extends AppCompatActivity {
                         TextView headerView = new TextView(this);
                         headerView.setText(section.getContent());
                         headerView.setTypeface(null, Typeface.BOLD);
+
                         int textSize;
+                        int marginTop;
                         switch (section.getType()) {
-                            case H1: textSize = 26; break;
-                            case H2: textSize = 24; break;
-                            case H3: textSize = 22; break;
-                            case H4: textSize = 20; break;
-                            case H5: textSize = 18; break;
-                            case H6: textSize = 16; break;
-                            default: textSize = 16; break;
+                            case H1: textSize = 26; marginTop = 80; break;
+                            case H2: textSize = 24; marginTop = 64; break;
+                            case H3: textSize = 22; marginTop = 48; break;
+                            case H4: textSize = 20; marginTop = 32; break;
+                            case H5: textSize = 18; marginTop = 24; break;
+                            case H6: textSize = 16; marginTop = 16; break;
+                            default: textSize = 16; marginTop = 8; break;
                         }
                         headerView.setTextSize(textSize);
+
+                        // Tworzenie parametrów układu z marginesem
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        params.setMargins(0, marginTop, 0, 0); // Marginesy: lewy, góra, prawy, dół
+                        headerView.setLayoutParams(params); // Ustawiamy parametry dla TextView
+
                         layout.addView(headerView);
                         break;
                 }
@@ -184,19 +210,19 @@ public class DetailActivity extends AppCompatActivity {
         SpannableString spannableString = new SpannableString(code);
 
         // Proste przykłady regexów do znalezienia kluczowych słów w Javie
-        Pattern keywordPattern = Pattern.compile("\\b(public|private|protected|class|void|int|float|if|else|for|while|return|new)\\b");
+        Pattern keywordPattern = Pattern.compile("\\b(public|double|private|protected|long|class|void|int|float|if|else|for|while|return|new)\\b");
         Pattern stringPattern = Pattern.compile("\".*?\""); // Ciągi znaków w cudzysłowach
         Pattern commentPattern = Pattern.compile("//.*|/\\*.*?\\*/", Pattern.DOTALL); // Komentarze
         Pattern fxmlPattern = Pattern.compile("@[A-Za-z]+", Pattern.DOTALL); // FXML
-        Pattern dataTypePattern = Pattern.compile("\\b[A-Z][a-z]*([A-Z][a-z]*)?\\b");
-        Pattern regexPattern = Pattern.compile("^(.*?)-.*$");
+        Pattern dataTypePattern = Pattern.compile("\\b[A-Z][a-z]*([A-Z][a-z]*)?\\b"); // nazwy zmiennych
+        Pattern regexPattern = Pattern.compile("^(.*?)-.*$"); //regexy (not working)
 
         // Ustaw kolory
         int keywordColor = Color.parseColor("#FF5722");
         int stringColor = Color.parseColor("#4CAF50");
         int commentColor = Color.parseColor("#757575");
         int fxmlColor = Color.parseColor("#f5c242");
-        int dataTypeColor = Color.parseColor("#e00087");
+        int dataTypeColor = Color.parseColor("#F000A7");
         int regexColor = Color.parseColor("#91366d");
 
         // Podświetl kluczowe słowa
@@ -276,6 +302,17 @@ public class DetailActivity extends AppCompatActivity {
                 String[] listData = {"Element 1", "Element 2", "Element 3"};
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
                 listView.setAdapter(adapter);
+
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Toast toast = new Toast(getBaseContext());
+                        toast.setText(((TextView) view).getText());
+                        toast.setDuration(Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
+
                 return listView;
 
             case "Spinner":

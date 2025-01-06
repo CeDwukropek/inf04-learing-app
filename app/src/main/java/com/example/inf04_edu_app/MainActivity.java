@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,24 +42,259 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadSampleItems() {
         // Przykładowe elementy\
-        Item item1 = new Item("ListView", "Opis ListView");
-        item1.addSection(new Section(Section.Type.H1, "ListView w Adnroid"));
-        item1.addSection(new Section(Section.Type.CODE, "ListView listView = new ListView(this);\n" +
-                "String[] listData = {\"Element 1\", \"Element 2\", \"Element 3\"};\n" +
-                "ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);\n" +
-                "listView.setAdapter(adapter);"
-                ));
+        Item item1 = new Item("ListView", "ListView służy do wyświetlanie informacji w liście");
+        item1.addSection(new Section(Section.Type.H1, "ListView w Android"));
+        List<String> subpoints = new ArrayList<>();
+        subpoints.add("Szukanie ListView stworzonego w kreatorze");
+        subpoints.add("Definicja i inicjalizacja tablicy z elementami");
+        subpoints.add("Definicja i inicjalizacja adaptera");
+        subpoints.add("Ustawienie adaptera");
+        subpoints.add("Ustawienie eventu na kliknięcie elementu");
+        item1.addSection(new Section(Section.Type.LIST, "ListView w Android", 1));
+        item1.addListSection(subpoints);
+        item1.addSection(new Section(Section.Type.H4, "Szukanie ListView stworzonego w kreatorze"));
+        item1.addSection(new Section(Section.Type.CODE, "listview = findViewById(R.id.listView);"));
+        item1.addSection(new Section(Section.Type.H4, "Definicja i inicjalizacja tablicy z elementami"));
+        item1.addSection(new Section(Section.Type.TEXT, ("Tutaj zrobione statycznie")));
+        item1.addSection(new Section(Section.Type.CODE, "String[] listData = {\"Element 1\", \"Element 2\", \"Element 3\"};"));
+        item1.addSection(new Section(Section.Type.H4, ("Definicja i inicjalizacja adaptera")));
+        item1.addSection(new Section(Section.Type.CODE, "" +
+                "ArrayAdapter<String> adapter = new ArrayAdapter<>(\n" +
+                "   this, /*context - obiekt(Activity) w którym ArrayAdapter ma szukać zasobów Views, Arrays, Resources itd.*/\n" +
+                "   android.R.layout.simple_list_item_1, /*resource - wybór układu*/\n" +
+                "   listData /*tablica z elementami*/\n" +
+                ");"));
+        item1.addSection(new Section(Section.Type.H4, ("Ustawienie adaptera")));
+        item1.addSection(new Section(Section.Type.CODE, ("listview.setAdapter(adapter);")));
+        item1.addSection(new Section(Section.Type.H4, ("Ustawienie adaptera")));
+        item1.addSection(new Section(Section.Type.CODE, "" +
+                "listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {\n" +
+                "   @Override\n" +
+                "   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {\n" +
+                "       /* event */\n" +
+                "   }\n" +
+                "});"));
+        item1.addSection(new Section(Section.Type.H4, ("Cały kod")));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "/* importy, po najechaniu na czerwony element kliknij Import Class */\n" +
+                "\n" +
+                "\n" +
+                "public class MainActivity extends AppCompatActivity {\n" +
+                "    private ListView listview;\n" +
+                "\n" +
+                "    @Override\n" +
+                "    protected void onCreate(Bundle savedInstanceState) {\n" +
+                "        super.onCreate(savedInstanceState);\n" +
+                "        EdgeToEdge.enable(this);\n" +
+                "        setContentView(R.layout.activity_main);\n" +
+                "        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {\n" +
+                "            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());\n" +
+                "            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);\n" +
+                "            return insets;\n" +
+                "        });\n" +
+                "\n" +
+                "        listview = findViewById(R.id.listView);\n" +
+                "        String[] listData = {\"Element 1\", \"Element 2\", \"Element 3\"};\n" +
+                "        ArrayAdapter<String> adapter = new ArrayAdapter<>(\n" +
+                "                this, /* context - obiekt(Activity) w którym ArrayAdapter ma szukać zasobów Views, Arrays, Resources itd. */\n" +
+                "                android.R.layout.simple_list_item_1, /* resource - wybór układu */\n" +
+                "                listData /* tablica z elementami */\n" +
+                "        );\n" +
+                "        listview.setAdapter(adapter);\n" +
+                "\n" +
+                "        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {\n" +
+                "            @Override\n" +
+                "            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {\n" +
+                "                Toast toast = new Toast(getBaseContext());\n" +
+                "                toast.setText(((TextView) view).getText());\n" +
+                "                toast.setDuration(Toast.LENGTH_SHORT);\n" +
+                "                toast.show();\n" +
+                "            }\n" +
+                "        });\n" +
+                "    }\n" +
+                "}"
+        )));
+        item1.addSection(new Section(Section.Type.H4, "Wizualizacja"));
         item1.addSection(new Section(Section.Type.EXAMPLE, "ListView"));
+
+
         item1.addSection(new Section(Section.Type.H1, "ListView w JavaFX"));
-        item1.addSection(new Section(Section.Type.H4, "Inicjalizacja"));
-        item1.addSection(new Section(Section.Type.CODE, "@FXML\n" +
-                "private ListView listView;"));
+        subpoints = new ArrayList<>();
+        subpoints.add("implements Initializable lub extends Application");
+        subpoints.add("Deklaracja");
+        subpoints.add("Ustawianie trybu zaznaczania Single lub Multiple");
+        subpoints.add("Wypełnianie tablicą lub listą");
+        subpoints.add("Dodawanie pojedynczego elementu");
+        subpoints.add("Pobieranie zaznaczonego elementu przy użyciu przycisku wywołującego metodę");
+        item1.addSection(new Section(Section.Type.LIST, "ListView w Adnroid"));
+        item1.addListSection(subpoints);
+        item1.addSection(new Section(Section.Type.H4, "implements Initializable lub extends Application"));
+        item1.addSection(new Section(Section.Type.CODE, "" +
+                "public class HelloController extends Application {\n" +
+                "   @Override\n" +
+                "   public void start(Stage stage) throws Exception {\n" +
+                "      /* kod, który ma się wywołać przy załadowaniu widoku */\n" +
+                "   }\n" +
+                "}"
+        ));
+        item1.addSection(new Section(Section.Type.H6, "lub"));
+        item1.addSection(new Section(Section.Type.CODE,"" +
+                "public class HelloController implements Initializable {\n" +
+                "   @Override\n" +
+                "   public void initialize(URL url, ResourceBundle resourceBundle) {\n" +
+                "      /* kod, który ma się wywołać przy załadowaniu widoku */\n" +
+                "   }\n" +
+                "}"
+        ));
+        item1.addSection(new Section(Section.Type.H4, "Deklaracja"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   @FXML /* bez tego program nie znajdzie naszego elementu (tu listy) */ \n" +
+                "   private ListView listView; /* WAŻNE! W JavaFX nazwa zmiennej musi być taka sama, jak ta nadana w SceneBuilderze lub pliku XML */"
+        )));
+        item1.addSection(new Section(Section.Type.H4, "Ustawianie trybu zaznaczania Single lub Multiple"));
+        item1.addSection(new Section(Section.Type.H6, "Tryb Single"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);"
+                )));
+        item1.addSection(new Section(Section.Type.H6, "Tryb Multiple"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);"
+        )));
         item1.addSection(new Section(Section.Type.H4, "Wypełnianie tablicą lub listą"));
-        item1.addSection(new Section(Section.Type.CODE, "listView.getItems().addAll(/* array / list */);"));
-        item1.addSection(new Section(Section.Type.H4, "Dodawanie elementu"));
-        item1.addSection(new Section(Section.Type.CODE, "listView.getItems().add(/* item */);"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   listView.getItems().addAll(\n" +
+                "       new String[]{\"item1\", \"item2\", \"item3\"}\n" +
+                "   );"
+        )));
+        item1.addSection(new Section(Section.Type.H6, "lub"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   ArrayList<String> list = new ArrayList<>();\n" +
+                "   list.add(\"item1\");\n" +
+                "   list.add(\"item2\");\n" +
+                "   list.add(\"item3\");\n" +
+                "   listView.getItems().addAll(list);")));
+        item1.addSection(new Section(Section.Type.H4, "Dodawanie pojedynczego elementu"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   listView.getItems().add(\"item1\");\n" +
+                "   listView.getItems().add(\"item2\");\n" +
+                "   listView.getItems().add(\"item3\");"
+        )));
+        item1.addSection(new Section(Section.Type.H4, "Pobieranie zaznaczonego elementu przy użyciu przycisku wywołującego metodę"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   public void getActiveElement(ActionEvent actionEvent) {\n" +
+                "       System.out.println(\n" +
+                "           listView.getSelectionModel().getSelectedItem() /* pobieranie zaznaczonego elementu */\n" +
+                "               .toString()\n" +
+                "       );\n" +
+                "   }"
+        )));
+        item1.addSection(new Section(Section.Type.H4, "Pobieranie zaznaczonego elementu przy kliknięciu"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   listView.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
+                "       @Override\n" +
+                "       public void handle(MouseEvent mouseEvent) {\n" +
+                "           System.out.println(listView.getSelectionModel().getSelectedItem().toString());\n" +
+                "       }\n" +
+                "   });"
+        )));
+        item1.addSection(new Section(Section.Type.H4, "Czyszczenie ListView"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "   listView.getItems().clear();"
+        )));
+        item1.addSection(new Section(Section.Type.H4, ("Cały kod")));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "/* importy, po najechaniu na czerwony element kliknij Import Class */\n" +
+                "public class HelloController implements Initializable {\n" +
+                "\n" +
+                "    @FXML\n" +
+                "    private ListView listView;\n" +
+                "    @FXML\n" +
+                "    private ListView listView2;\n" +
+                "    @FXML\n" +
+                "    private ListView listView3;\n" +
+                "\n" +
+                "    @Override\n" +
+                "    public void initialize(URL url, ResourceBundle resourceBundle) {\n" +
+                "        listView.getItems().addAll(new String[]{\"item1\", \"item2\", \"item3\"});\n" +
+                "\n" +
+                "        ArrayList<String> list = new ArrayList<>();\n" +
+                "        list.add(\"item1\");\n" +
+                "        list.add(\"item2\");\n" +
+                "        list.add(\"item3\");\n" +
+                "        listView2.getItems().addAll(list);\n" +
+                "\n" +
+                "        listView3.getItems().add(\"item1\");\n" +
+                "        listView3.getItems().add(\"item2\");\n" +
+                "        listView3.getItems().add(\"item3\");\n" +
+                "\n" +
+                "        listView.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
+                "            @Override\n" +
+                "            public void handle(MouseEvent mouseEvent) {\n" +
+                "                Notifications.create()\n" +
+                "                        .title(\"listView\")\n" +
+                "                        .text(listView.getSelectionModel().getSelectedItem().toString())\n" +
+                "                        .hideAfter(Duration.seconds(3))\n" +
+                "                        .position(Pos.BOTTOM_RIGHT)\n" +
+                "                        .show();\n" +
+                "            }\n" +
+                "        });\n" +
+                "\n" +
+                "        listView2.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
+                "            @Override\n" +
+                "            public void handle(MouseEvent mouseEvent) {\n" +
+                "                Notifications.create()\n" +
+                "                        .title(\"listView2\")\n" +
+                "                        .text(listView2.getSelectionModel().getSelectedItem().toString())\n" +
+                "                        .hideAfter(Duration.seconds(3))\n" +
+                "                        .position(Pos.BOTTOM_RIGHT)\n" +
+                "                        .show();\n" +
+                "            }\n" +
+                "        });\n" +
+                "\n" +
+                "        listView3.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
+                "            @Override\n" +
+                "            public void handle(MouseEvent mouseEvent) {\n" +
+                "            Notifications.create()\n" +
+                "                    .title(\"listView3\")\n" +
+                "                    .text(listView3.getSelectionModel().getSelectedItem().toString())\n" +
+                "                    .hideAfter(Duration.seconds(3))\n" +
+                "                    .position(Pos.BOTTOM_RIGHT)\n" +
+                "                    .show();\n" +
+                "            }\n" +
+                "        });\n" +
+                "    }\n" +
+                "\n" +
+                "    public void clearLists(ActionEvent actionEvent) {\n" +
+                "        listView.getItems().clear();\n" +
+                "        listView2.getItems().clear();\n" +
+                "        listView3.getItems().clear();\n" +
+                "    }\n" +
+                "\n" +
+                "    public void getActiveElement(ActionEvent actionEvent) {\n" +
+                "        if (listView.getSelectionModel().getSelectedItem() == null ||\n" +
+                "                listView2.getSelectionModel().getSelectedItem() == null ||\n" +
+                "                listView3.getSelectionModel().getSelectedItem() ==null) {\n" +
+                "            Alert alert = new Alert(Alert.AlertType.ERROR);\n" +
+                "            alert.setTitle(\"Error\");\n" +
+                "            alert.setContentText(\"Nie zaznaczono elementu w każdym ListView\");\n" +
+                "            alert.show();\n" +
+                "            return;\n" +
+                "        }\n" +
+                "        Alert alert = new Alert(Alert.AlertType.INFORMATION);\n" +
+                "        alert.setTitle(\"Button Clicked\");\n" +
+                "        alert.setContentText(\n" +
+                "                listView.getSelectionModel().getSelectedItem().toString() + \"\\n\" +\n" +
+                "                listView2.getSelectionModel().getSelectedItem().toString() + \"\\n\" +\n" +
+                "                listView3.getSelectionModel().getSelectedItem().toString() + \"\\n\"\n" +
+                "                );\n" +
+                "        alert.show();\n" +
+                "    }\n" +
+                "}"
+        )));
+
 
         /* ------------- */
+
 
         Item item2 = new Item("Spinner", "Opis Spinnera (ComboBox) w Androidzie.");
         item2.addSection(new Section(Section.Type.TEXT, "Spinner pozwala użytkownikowi wybrać jedną opcję z listy."));

@@ -1,5 +1,6 @@
 package com.example.inf04_edu_app;
 
+import android.util.Log;
 import android.view.View;
 
 import java.io.Serializable;
@@ -21,11 +22,10 @@ public class Section implements Serializable {
         H6
     }
 
-    private List<String> listItems; // Lista dla sekcji typu LIST
+    private List<String> listItems = new ArrayList<>(); // Lista dla sekcji typu LIST
+    private int listId; // id dla listy
     private Type type;
     private String content; // Tekst lub kod
-    private Integer imageResId; // Zasób obrazka
-    private String exampleType; // Typ przykładu: "ListView", "Spinner", etc.
 
     public Section(Type type, String content) {
         this.type = type;
@@ -33,6 +33,16 @@ public class Section implements Serializable {
         if (type == Type.LIST) {
             this.listItems = new ArrayList<>();
         }
+        this.listId = 0;
+    }
+
+    public Section(Type type, String content, int listId) {
+        this.type = type;
+        this.content = content;
+        if (type == Type.LIST) {
+            this.listItems = new ArrayList<>();
+        }
+        this.listId = listId;
     }
 
     public Type getType() {
@@ -43,38 +53,20 @@ public class Section implements Serializable {
         return content;
     }
 
-    public Integer getImageResId() {
-        return imageResId;
+    public int getListId() {
+        return listId;
     }
 
-    public String getExampleType() {
-        return exampleType;
-    }
-
-    // Getter i setter dla listItems
     public List<String> getListItems() {
         return listItems;
-    }
-
-    public void setContent(String content) {
-        if (type != Type.LIST) {
-            this.content = content;
-        }
     }
 
     public void setListItems(List<String> items) {
         if (type == Type.LIST) {
             this.listItems = items;
+            Log.d("addList", "added list");
         } else {
             throw new IllegalStateException("This section is not of type LIST.");
-        }
-    }
-
-    public void addListItem(String item) {
-        if (type == Type.LIST) {
-            this.listItems.add(item);
-        } else {
-            throw new IllegalStateException("Cannot add items to a non-LIST section.");
         }
     }
 }
