@@ -139,7 +139,7 @@ public class DetailActivity extends AppCompatActivity {
                         break;
 
                     case EXAMPLE:
-                        View exampleView = createExampleView(section.getExampleType());
+                        View exampleView = createExampleView(section.getContent());
                         layout.addView(exampleView);
                         break;
 
