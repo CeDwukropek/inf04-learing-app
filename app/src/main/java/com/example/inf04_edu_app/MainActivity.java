@@ -41,8 +41,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadSampleItems() {
-        // Przykładowe elementy\
+
+
+        /* ------ ListView ------ */
+
+
         Item item1 = new Item("ListView", "ListView służy do wyświetlanie informacji w liście");
+
+        /* Android */
         item1.addSection(new Section(Section.Type.H1, "ListView w Android"));
         List<String> subpoints = new ArrayList<>();
         subpoints.add("Szukanie ListView stworzonego w kreatorze");
@@ -117,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         item1.addSection(new Section(Section.Type.H4, "Wizualizacja"));
         item1.addSection(new Section(Section.Type.EXAMPLE, "ListView"));
 
+        /* JavaFX */
 
         item1.addSection(new Section(Section.Type.H1, "ListView w JavaFX"));
         subpoints = new ArrayList<>();
@@ -173,7 +180,26 @@ public class MainActivity extends AppCompatActivity {
                 "   list.add(\"item2\");\n" +
                 "   list.add(\"item3\");\n" +
                 "   listView.getItems().addAll(list);")));
-        item1.addSection(new Section(Section.Type.H4, "Dodawanie pojedynczego elementu"));
+        item1.addSection(new Section(Section.Type.H6, "lub"));
+        item1.addSection(new Section(Section.Type.CODE, (
+                "// Tworzenie ObservableList i dodawanie danych\n" +
+                "   ObservableList<String> items = FXCollections.observableArrayList(\n" +
+                "       \"Element 1\",\n" +
+                "       \"Element 2\",\n" +
+                "       \"Element 3\",\n" +
+                "       \"Element 4\",\n" +
+                "       \"Element 5\"\n" +
+                "   );\n" +
+                "\n" +
+                "   // Powiązanie danych z ListView\n" +
+                "   listView.setItems(items);\n" +
+                "\n" +
+                "   // Obsługa zdarzenia kliknięcia na element ListView\n" +
+                "   listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "       System.out.println(\"Wybrano: \" + newValue);\n" +
+                "   });"
+        )));
+        item1.addSection(new Section(Section.Type.H4, "Dodawanie pojedynczych elementów"));
         item1.addSection(new Section(Section.Type.CODE, (
                 "   listView.getItems().add(\"item1\");\n" +
                 "   listView.getItems().add(\"item2\");\n" +
@@ -190,11 +216,8 @@ public class MainActivity extends AppCompatActivity {
         )));
         item1.addSection(new Section(Section.Type.H4, "Pobieranie zaznaczonego elementu przy kliknięciu"));
         item1.addSection(new Section(Section.Type.CODE, (
-                "   listView.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
-                "       @Override\n" +
-                "       public void handle(MouseEvent mouseEvent) {\n" +
-                "           System.out.println(listView.getSelectionModel().getSelectedItem().toString());\n" +
-                "       }\n" +
+                "   listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "       System.out.println(\"Wybrano: \" + newValue);\n" +
                 "   });"
         )));
         item1.addSection(new Section(Section.Type.H4, "Czyszczenie ListView"));
@@ -204,6 +227,8 @@ public class MainActivity extends AppCompatActivity {
         item1.addSection(new Section(Section.Type.H4, ("Cały kod")));
         item1.addSection(new Section(Section.Type.CODE, (
                 "/* importy, po najechaniu na czerwony element kliknij Import Class */\n" +
+                "\n" +
+                "\n" +
                 "public class HelloController implements Initializable {\n" +
                 "\n" +
                 "    @FXML\n" +
@@ -227,41 +252,34 @@ public class MainActivity extends AppCompatActivity {
                 "        listView3.getItems().add(\"item2\");\n" +
                 "        listView3.getItems().add(\"item3\");\n" +
                 "\n" +
-                "        listView.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
-                "            @Override\n" +
-                "            public void handle(MouseEvent mouseEvent) {\n" +
-                "                Notifications.create()\n" +
-                "                        .title(\"listView\")\n" +
-                "                        .text(listView.getSelectionModel().getSelectedItem().toString())\n" +
-                "                        .hideAfter(Duration.seconds(3))\n" +
-                "                        .position(Pos.BOTTOM_RIGHT)\n" +
-                "                        .show();\n" +
-                "            }\n" +
-                "        });\n" +
-                "\n" +
-                "        listView2.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
-                "            @Override\n" +
-                "            public void handle(MouseEvent mouseEvent) {\n" +
-                "                Notifications.create()\n" +
-                "                        .title(\"listView2\")\n" +
-                "                        .text(listView2.getSelectionModel().getSelectedItem().toString())\n" +
-                "                        .hideAfter(Duration.seconds(3))\n" +
-                "                        .position(Pos.BOTTOM_RIGHT)\n" +
-                "                        .show();\n" +
-                "            }\n" +
-                "        });\n" +
-                "\n" +
-                "        listView3.setOnMouseClicked(new EventHandler<MouseEvent>() {\n" +
-                "            @Override\n" +
-                "            public void handle(MouseEvent mouseEvent) {\n" +
+                "        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
                 "            Notifications.create()\n" +
-                "                    .title(\"listView3\")\n" +
-                "                    .text(listView3.getSelectionModel().getSelectedItem().toString())\n" +
+                "                    .title(\"listView\")\n" +
+                "                    .text((String) newValue)\n" +
                 "                    .hideAfter(Duration.seconds(3))\n" +
                 "                    .position(Pos.BOTTOM_RIGHT)\n" +
                 "                    .show();\n" +
-                "            }\n" +
                 "        });\n" +
+                "\n" +
+                "        listView2.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "            Notifications.create()\n" +
+                "                    .title(\"listView2\")\n" +
+                "                    .text((String) newValue)\n" +
+                "                    .hideAfter(Duration.seconds(3))\n" +
+                "                    .position(Pos.BOTTOM_RIGHT)\n" +
+                "                    .show();\n" +
+                "        });\n" +
+                "\n" +
+                "        listView3.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "            Notifications.create()\n" +
+                "                    .title(\"listView3\")\n" +
+                "                    .text((String) newValue)\n" +
+                "                    .hideAfter(Duration.seconds(3))\n" +
+                "                    .position(Pos.BOTTOM_RIGHT)\n" +
+                "                    .show();\n" +
+                "        });\n" +
+                "\n" +
+                "\n" +
                 "    }\n" +
                 "\n" +
                 "    public void clearLists(ActionEvent actionEvent) {\n" +
@@ -293,22 +311,93 @@ public class MainActivity extends AppCompatActivity {
         )));
 
 
-        /* ------------- */
+        /* ------ Spinner/ComboBox ------ */
 
 
-        Item item2 = new Item("Spinner", "Opis Spinnera (ComboBox) w Androidzie.");
-        item2.addSection(new Section(Section.Type.TEXT, "Spinner pozwala użytkownikowi wybrać jedną opcję z listy."));
-        item2.addSection(new Section(Section.Type.CODE,
+        Item item2 = new Item("Spinner/ComboBox", "Spinner/ComboBox służy do wyświetlania listy z możliwością wyborania jednego z elementów.");
+
+        /* Android */
+        subpoints = new ArrayList<>();
+        subpoints.add("Inicializacja");
+        subpoints.add("Wypełanianie");
+        subpoints.add("Pobieranie danych");
+        subpoints.add("Event po kliknięciu elementu");
+        item2.addListSection(subpoints);
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(0)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   @FXML\n" +
+                "   public ComboBox<String> comboBox;"
+        )));
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(1)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   comboBox.getItems().setAll(new String[] {\"koszykówka\", \"ping pong\", \"siatkówka\"});"
+        )));
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(2)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "       System.out.println(\"Wybrano \" + newValue);\n" +
+                "   });"
+        )));
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(3)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   comboBox.getSelectionModel().getSelectedItem()"
+        )));
+        item2.addSection(new Section(Section.Type.H4, "Cay kod"));
+        item2.addSection(new Section(Section.Type.CODE, (
                 "Spinner spinner = new Spinner(this);\n" +
                 "String[] spinnerData = {\"Opcja 1\", \"Opcja 2\", \"Opcja 3\"};\n" +
                 "ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, spinnerData);\n" +
                 "spinner.setAdapter(spinnerAdapter);"
-                ));
+        )));
         item2.addSection(new Section(Section.Type.EXAMPLE, "Spinner"));
 
-        /* ------------- */
+        /* JavFX */
+        item2.addSection(new Section(Section.Type.LIST, null));
+        subpoints = new ArrayList<>();
+        subpoints.add("Inicializacja");
+        subpoints.add("Wypełanianie");
+        subpoints.add("Pobieranie danych");
+        subpoints.add("Event po kliknięciu elementu");
+        item2.addListSection(subpoints);
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(0)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   @FXML\n" +
+                "   public ComboBox<String> comboBox;"
+        )));
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(1)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   comboBox.getItems().setAll(new String[] {\"koszykówka\", \"ping pong\", \"siatkówka\"});"
+        )));
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(2)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "       System.out.println(\"Wybrano \" + newValue);\n" +
+                "   });"
+        )));
+        item2.addSection(new Section(Section.Type.H4, subpoints.get(3)));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "   comboBox.getSelectionModel().getSelectedItem()"
+        )));
+        item2.addSection(new Section(Section.Type.H4, "Cay kod"));
+        item2.addSection(new Section(Section.Type.CODE, (
+                "/* importy, po najechaniu na czerwony element kliknij Import Class */\n" +
+                "public class ComboBoxController implements Initializable {\n" +
+                "    @FXML\n" +
+                "    public ComboBox<String> comboBox;\n" +
+                "\n" +
+                "    @Override\n" +
+                "    public void initialize(URL url, ResourceBundle resourceBundle) {\n" +
+                "        comboBox.getItems().setAll(new String[] {\"koszykówka\", \"ping pong\", \"siatkówka\"});\n" +
+                "        comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {\n" +
+                "            System.out.println(\"Wybrano \" + newValue);\n" +
+                "        });\n" +
+                "    }\n" +
+                "}\n"
+        )));
 
-        Item item3 = new Item("Regex", "Regex służy do znajdywania ciągów znaków.");
+        /* ------ Regex ------ */
+
+        Item item3 = new Item("*Regex", "Regex służy do znajdywania ciągów znaków.");
         item3.addSection(new Section(Section.Type.LIST, null)); // Pusty content dla LIST
         List<String> items = new ArrayList<>();
         items.add("\\\\b - Granica słowa, aby dopasowywać całe słowa.");
